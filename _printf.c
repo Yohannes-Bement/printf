@@ -1,6 +1,7 @@
+
 #include "main.h"
 
-void prone_buf(char buf[], int *buf_in);
+void print_buffer(char buffer[], int *buff_ind);
 
 /**
  * _printf - Printf function
@@ -9,59 +10,59 @@ void prone_buf(char buf[], int *buf_in);
  */
 int _printf(const char *format, ...)
 {
-        int icon, pron = 0, pron_chars = 0;
-        int frog, wood, pre, siz, buf_in = 0;
-        va_list list;
-        char buf[BUF_SIZ];
+	int i, printed = 0, printed_chars = 0;
+	int flags, width, precision, size, buff_ind = 0;
+	va_list list;
+	char buffer[BUFF_SIZE];
 
-        if (format == NULL)
-                return (-1);
+	if (format == NULL)
+		return (-1);
 
-        va_start(list, format);
+	va_start(list, format);
 
-        for (icon = 0; format && format[icon] != '\0'; icon++)
-        {
-                if (format[icon] != '%')
-                {
-                        buf[buf_in++] = format[icon];
-                        if (buf_in == BUF_SIZ)
-                                pron_buf(buf, &buf_in);
-                        /* write(1, &format[i], 1);*/
-                        pron_chars++;
-                }
-                else
+	for (i = 0; format && format[i] != '\0'; i++)
+	{
+		if (format[i] != '%')
 		{
-			pron_buf(buf, &buf_in);
-			frog = get_frog(format, &icon);
-			wood = get_wood(format, &icon, list);
-			per = get_pre(format, &icon, list);
-			siz = get_siz(format, &icon);
-			++icon;
-			pron = handle_pron(format, &icon, list, buf,
-				frog, wood, pre, siz);
-			if (pron == -1)
+			buffer[buff_ind++] = format[i];
+			if (buff_ind == BUFF_SIZE)
+				print_buffer(buffer, &buff_ind);
+			/* write(1, &format[i], 1);*/
+			printed_chars++;
+		}
+		else
+		{
+			print_buffer(buffer, &buff_ind);
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, list);
+			precision = get_precision(format, &i, list);
+			size = get_size(format, &i);
+			++i;
+			printed = handle_print(format, &i, list, buffer,
+				flags, width, precision, size);
+			if (printed == -1)
 				return (-1);
-			pron_chars += pron;
+			printed_chars += printed;
 		}
 	}
 
-	pron_buf(buf, &buf_in);
+	print_buffer(buffer, &buff_ind);
 
 	va_end(list);
 
-	return (pron_chars);
+	return (printed_chars);
 }
 
 /**
- * pron_buf - Prints the contents of the buffer if it exist
- * @buf: Array of chars
- * @buf_in: Index at which to add next char, represents the length.
+ * print_buffer - Prints the contents of the buffer if it exist
+ * @buffer: Array of chars
+ * @buff_ind: Index at which to add next char, represents the length.
  */
-void pron_buf(char buf[], int *buf_in)
+void print_buffer(char buffer[], int *buff_ind)
 {
-	if (*buf_in > 0)
-		write(1, &buf[0], *buf_in);
+	if (*buff_ind > 0)
+		write(1, &buffer[0], *buff_ind);
 
-	*buf_in = 0;
+	*buff_ind = 0;
 }
-	
+
